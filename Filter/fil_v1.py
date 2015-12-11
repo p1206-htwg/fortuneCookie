@@ -34,9 +34,9 @@ for i in range(0,len(beg_arr)):						#schleife von 0 bis Anzahl der Elemente im 
 
 	bom = beg_arr[i]+109              			    #begin of msg
 	eom = end_arr[i]             				    #end of msg
-	tmsgl = txt_in[bom:eom]                          #twitter msg
-	tmsg = tmsgl.split(link, 1)[0]					#string teilen, der Teil mit dem Link wird entfernt
-	tmsg = tmsgl.split(link2, 1)[0]					#string teilen, der Teil mit dem Link wird entfernt
+	tmsg = txt_in[bom:eom]                          #twitter msg
+	tmsg = tmsg.split(link, 1)[0]					#string teilen, der Teil mit dem Link wird entfernt
+	tmsg = tmsg.split(link2, 1)[0]					#string teilen, der Teil mit dem Link wird entfernt
 
 	if tmsg.startswith('RT'):
 		tmsg = tmsg.replace('RT', "")
