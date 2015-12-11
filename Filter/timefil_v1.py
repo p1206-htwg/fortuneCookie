@@ -8,22 +8,21 @@ def month_converter(monthWord):
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     return months.index(monthWord) + 1
 
-txt_in = open('twitter.txt').read()            		#lesen der Datei
-txt_out = open("clean_twitter.txt", "w")      		#schreiben der Datei
-
+txt_in = open('TwitterData-10_12_2015_14_00_01.txt').read()            		#lesen der Datei
+txt_out = open("TwitterData-10_12_2015_14_00_01_clean.txt", "w")      							#schreiben der Datei
+	
+starthour = input('Filtern von[hh]:')
+startmin = input('Filtern von[mm]:')
+endhour = input('Filtern bis[hh]:')
+endmin = input('Filtern bis[mm]:')
 
 #Ein Array mit dem Index für Anfang und Ende aller twitter msgs in der txt file wird erstellt
 beg_arr = [n for n in xrange(len(txt_in)) if txt_in.find('{"created_at', n) == n]
 end_arr = [n for n in xrange(len(txt_in)) if txt_in.find('","source":"', n) == n]
 
-#print len(beg_arr)									#Anzahl der Elemente im Array
-#print len(end_arr)
 cln_msg = []										#declare as  list
-
-starthour = input('Filtern von[hh]:')
-startmin = input('Filtern von[mm]:')
-endhour = input('Filtern bis[hh]:')
-endmin = input('Filtern bis[mm]:')
+link = 'https:\/'									#separator bestimmen um links zu löschen
+link2 = 'http:\/'									#separator bestimmen um links zu löschen
 
 for i in range(0,len(beg_arr)):						#schleife von 0 bis Anzahl der Elemente im Array
 
@@ -36,12 +35,34 @@ for i in range(0,len(beg_arr)):						#schleife von 0 bis Anzahl der Elemente im 
 	date = day + "/" + month + "/" + year           #Datum als dd/mm/yyyy
 	bom = beg_arr[i]+109              			    #begin of msg
 	eom = end_arr[i]             				    #end of msg
-	tmsg = txt_in[bom:eom]                          #twitter msg
+	tmsgl = txt_in[bom:eom]                         #twitter msg mit links
+	tmsg = tmsgl.split(link, 1)[0]					#string teilen, der Teil mit dem Link wird entfernt
+	tmsg = tmsgl.split(link2, 1)[0]					#string teilen, der Teil mit dem Link wird entfernt
+
+	temptime = datetime.strptime(msgtime, "%X")		#Datierung in ein Time-objekt umwandeln
+
+	if tmsg.startswith('RT'):
+		tmsg = tmsg.replace('RT', "")
 	
-	temptime = datetime.strptime(msgtime, "%X")
+	tmsg_lst = tmsg.split()	
+	matching = [s for s in tmsg_lst if "@" in s] #get all the items containing @ in the list
+	
+	for i in range(0,len(matching)):
+		tmsg = tmsg.replace(matching[i], "")	#lösche gefundene wörter
+	
+	matching = [s for s in tmsg_lst if "\u" in s] #get all the items containing @ in the list
+	
+	for i in range(0,len(matching)):
+		tmsg = tmsg.replace(matching[i], "")	#lösche gefundene wörter
+		
+	
+	tmsg = " ".join(tmsg.split())				#alle doppelten/zuviele leerzeichen entfernen
+
 	if temptime >= datetime(1900,1,1,starthour,startmin) and temptime <= datetime(1900,1,1,endhour,endmin):
 		cln_msg.append (date +" "+ msgtime +" "+ tmsg)		#liste mit msgs fängt bei 0 an 
  
+ #mit find stelle suchen und mit replace ersetzen
+
 
 result = set(line for line in cln_msg)
 txt_out.write("\n".join(result))
